@@ -66,13 +66,14 @@ jobs:
           - 5432:5432
 
     env:
-      SECRET_KEY: github-actions-test-secret-key-not-for-production-use
+      SECRET_KEY: github-actions-test-secret-key
       DEBUG: True
       DB_NAME: test_portfolio_db
       DB_USER: test_user
       DB_PASSWORD: test_pass
       DB_HOST: localhost
       DB_PORT: 5432
+      DATABASE_URL: ""   # ← add this explicitly as empty
       EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
       ADMIN_EMAIL: test@test.com
       DEFAULT_FROM_EMAIL: noreply@test.com

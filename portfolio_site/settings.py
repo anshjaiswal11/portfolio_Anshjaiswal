@@ -74,13 +74,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio_site.wsgi.application'
 
-if DATABASE_URL:
-    # Railway provides a full DATABASE_URL
+DATABASE_URL = os.environ.get('DATABASE_URL', '').strip()
+
+if DATABASE_URL and not DATABASE_URL.startswith('${{'):
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
 else:
-    # Local development uses individual variables
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
