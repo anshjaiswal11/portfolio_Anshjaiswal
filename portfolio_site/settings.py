@@ -3,6 +3,9 @@ from pathlib import Path
 from decouple import config
 import dj_database_url
 
+
+PORT = os.environ.get('PORT', '8000')
+
 DATABASE_URL = config('DATABASE_URL', default='None')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
