@@ -132,9 +132,9 @@ jobs:
           cat > .env << EOF
           SECRET_KEY=docker-build-test-key-not-real
           DEBUG=False
-          DB_NAME=portfolio_db
-          DB_USER=portfolio_user
-          DB_PASSWORD=portfolio_pass
+          DB_NAME=postgres
+          DB_USER=postgres
+          DB_PASSWORD=ansh
           DB_HOST=db
           DB_PORT=5432
           EMAIL_BACKEND=django.core.mail.backends.console.EmailBackend
@@ -149,8 +149,6 @@ jobs:
           file: ./Dockerfile
           push: false
           tags: portfolio-site:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
       - name: Test Docker image runs
         run: |
@@ -181,6 +179,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=moby/buildkit:latest
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -205,5 +208,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+
+
