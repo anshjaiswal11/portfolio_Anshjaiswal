@@ -28,6 +28,7 @@ COPY . .
 RUN mkdir -p /app/media /app/staticfiles
 
 # Collect static files
+RUN mkdir -p /app/static /app/staticfiles /app/media
 RUN python manage.py collectstatic --noinput || true
 
 # Create non-root user for security
