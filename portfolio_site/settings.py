@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
+
+DATABASE_URL = config('DATABASE_URL', default='None')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -68,16 +71,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio_site.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME', default='portfolio_db'),
-        'USER': config('DB_USER', default='portfolio_user'),
-        'PASSWORD': config('DB_PASSWORD', default='portfolio_pass'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+if DATABASE_URL:
+    # Railway provides a full DATABASE_URL
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
-}
+else:
+    # Local development uses individual variables
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='portfolio_db'),
+            'USER': config('DB_USER', default='portfolio_user'),
+            'PASSWORD': config('DB_PASSWORD', default='portfolio_pass'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
