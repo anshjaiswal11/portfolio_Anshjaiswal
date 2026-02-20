@@ -204,7 +204,7 @@ class AuthViewTest(TestCase):
             'password': 'SecurePass123!'
         }, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.context['request'].user.is_authenticated)
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
 
     def test_login_failure(self):
         response = self.client.post(reverse('login'), {
@@ -313,7 +313,7 @@ class APITest(TestCase):
             'description': 'This should fail',
             'tech_stack': 'None',
         })
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_create_project_with_auth(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
