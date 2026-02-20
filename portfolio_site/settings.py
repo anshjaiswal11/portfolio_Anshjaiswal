@@ -1,20 +1,17 @@
 import os
+import dj_database_url
 from pathlib import Path
 from decouple import config
-import dj_database_url
-
-
-PORT = os.environ.get('PORT', '8000')
-
-DATABASE_URL = config('DATABASE_URL', default='None')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production-use-env-var')
-
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-local-dev-only')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0').split(',')
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost,127.0.0.1,0.0.0.0'
+).split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -23,11 +20,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third party
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    # Local apps
     'accounts_app',
     'projects_app',
     'contact_app',
@@ -74,9 +69,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'portfolio_site.wsgi.application'
 
+# ─── Database ────────────────────────────────────────────────────────────────
 DATABASE_URL = os.environ.get('DATABASE_URL', '').strip()
 
-if DATABASE_URL and not DATABASE_URL.startswith('${{'):
+if DATABASE_URL and DATABASE_URL.startswith(('postgres', 'postgresql')):
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
@@ -104,6 +100,7 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
+# ─── Static Files ─────────────────────────────────────────────────────────────
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_DIR = BASE_DIR / 'static'
@@ -119,7 +116,7 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Email Configuration
+# ─── Email ────────────────────────────────────────────────────────────────────
 EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
@@ -129,7 +126,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@portfolio.com')
 ADMIN_EMAIL = config('ADMIN_EMAIL', default='admin@portfolio.com')
 
-# REST Framework
+# ─── REST Framework ───────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -138,13 +135,20 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10,
 }
 
-CORS_ALLOWED_ORIGINS = config(
-    'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
-
+# ─── CORS ─────────────────────────────────────────────────────────────────────
 CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=False, cast=bool)
+if not CORS_ALLOW_ALL_ORIGINS:
+    CORS_ALLOWED_ORIGINS = config(
+        'CORS_ALLOWED_ORIGINS',
+        default='http://localhost:3000'
+    ).split(',')
+
+# ─── Railway / Production ─────────────────────────────────────────────────────
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://portfolioanshjaiswal-production.up.railway.app',
+]
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
