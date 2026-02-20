@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portfolio{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50:'#eef2ff', 100:'#e0e7ff', 500:'#6366f1', 600:'#4f46e5', 700:'#4338ca', 900:'#312e81' },
+                        accent: { 400:'#34d399', 500:'#10b981', 600:'#059669' }
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .gradient-text { background: linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-gradient { background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #0f2027 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15); }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: linear-gradient(90deg, #6366f1, #8b5cf6); transition: width 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+        .form-input { @apply w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white; }
+        .btn-primary { @apply inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-600 to-purple-600 text-white font-semibold rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl; }
+        .btn-secondary { @apply inline-flex items-center px-6 py-3 border-2 border-primary-600 text-primary-600 font-semibold rounded-xl hover:bg-primary-600 hover:text-white transition-all duration-200; }
+        .tech-badge { @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700 border border-primary-200; }
+        .section-title { @apply text-3xl md:text-4xl font-bold text-gray-900 mb-4; }
+        .section-subtitle { @apply text-lg text-gray-500 mb-12; }
+        .alert-success { @apply bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl; }
+        .alert-error { @apply bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-xl; }
+        .alert-info { @apply bg-blue-50 border border-blue-200 text-blue-800 px-6 py-4 rounded-xl; }
+        ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #f1f5f9; } ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 3px; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="font-sans bg-gray-50 text-gray-800">
+
+<!-- Navbar -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <!-- Logo -->
+            <a href="{{ url('home') }}" class="flex items-center space-x-2">
+                <div class="w-8 h-8 bg-gradient-to-br from-primary-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">P</span>
+                </div>
+                <span class="text-xl font-bold gradient-text">Portfolio</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{{ url('home') }}" class="nav-link text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
+                <a href="{{ url('about') }}" class="nav-link text-gray-600 hover:text-primary-600 font-medium transition-colors">About</a>
+                <a href="{{ url('projects_list') }}" class="nav-link text-gray-600 hover:text-primary-600 font-medium transition-colors">Projects</a>
+                <a href="{{ url('contact') }}" class="nav-link text-gray-600 hover:text-primary-600 font-medium transition-colors">Contact</a>
+                {% if request.user.is_authenticated %}
+                    <a href="{{ url('dashboard') }}" class="nav-link text-gray-600 hover:text-primary-600 font-medium transition-colors">Dashboard</a>
+                    <a href="{{ url('logout') }}" class="btn-secondary text-sm py-2 px-4">Logout</a>
+                {% else %}
+                    <a href="{{ url('login') }}" class="btn-primary text-sm py-2 px-4">Login</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile menu button -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-600 hover:text-primary-600 focus:outline-none" aria-label="Toggle menu">
+                <i class="fas fa-bars text-xl" id="menu-icon"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3">
+        <a href="{{ url('home') }}" class="block text-gray-600 hover:text-primary-600 font-medium py-2">Home</a>
+        <a href="{{ url('about') }}" class="block text-gray-600 hover:text-primary-600 font-medium py-2">About</a>
+        <a href="{{ url('projects_list') }}" class="block text-gray-600 hover:text-primary-600 font-medium py-2">Projects</a>
+        <a href="{{ url('contact') }}" class="block text-gray-600 hover:text-primary-600 font-medium py-2">Contact</a>
+        {% if request.user.is_authenticated %}
+            <a href="{{ url('dashboard') }}" class="block text-gray-600 hover:text-primary-600 font-medium py-2">Dashboard</a>
+            <a href="{{ url('logout') }}" class="block text-red-600 font-medium py-2">Logout</a>
+        {% else %}
+            <a href="{{ url('login') }}" class="btn-primary w-full text-center text-sm py-2">Login</a>
+        {% endif %}
+    </div>
+</nav>
+
+<!-- Flash Messages -->
+<div class="fixed top-20 right-4 z-50 space-y-2 max-w-sm" id="flash-messages">
+    {% for message in get_messages(request) %}
+        <div class="{% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-error{% else %}alert-info{% endif %} flex items-start space-x-3 shadow-lg animate-pulse-once" data-message>
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle text-green-500{% elif message.tags == 'error' %}fa-exclamation-circle text-red-500{% else %}fa-info-circle text-blue-500{% endif %} mt-0.5"></i>
+            <span class="flex-1 text-sm">{{ message }}</span>
+            <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-gray-600 ml-2">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Main Content -->
+<main class="pt-16">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+                <div class="flex items-center space-x-2 mb-4">
+                    <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span class="text-xl font-bold">Portfolio</span>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">A full-stack Django portfolio showcasing projects, skills, and experience. Built with modern technologies.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg mb-4">Quick Links</h3>
+                <ul class="space-y-2 text-gray-400 text-sm">
+                    <li><a href="{{ url('home') }}" class="hover:text-white transition-colors">Home</a></li>
+                    <li><a href="{{ url('about') }}" class="hover:text-white transition-colors">About</a></li>
+                    <li><a href="{{ url('projects_list') }}" class="hover:text-white transition-colors">Projects</a></li>
+                    <li><a href="{{ url('contact') }}" class="hover:text-white transition-colors">Contact</a></li>
+                    <li><a href="/api/projects/" class="hover:text-white transition-colors">API Docs</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg mb-4">Connect</h3>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors" aria-label="GitHub">
+                        <i class="fab fa-github text-gray-400 hover:text-white"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-blue-600 transition-colors" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in text-gray-400 hover:text-white"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-sky-500 transition-colors" aria-label="Twitter">
+                        <i class="fab fa-twitter text-gray-400 hover:text-white"></i>
+                    </a>
+                    <a href="{{ url('contact') }}" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-accent-500 transition-colors" aria-label="Email">
+                        <i class="fas fa-envelope text-gray-400 hover:text-white"></i>
+                    </a>
+                </div>
+                <p class="text-gray-500 text-xs mt-6">API available at <a href="/api/" class="text-primary-400 hover:text-primary-300">/api/</a></p>
+            </div>
+        </div>
+        <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
+            <p>© 2024 Portfolio. Built with Django, PostgreSQL &amp; ❤️</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// Mobile menu toggle
+const btn = document.getElementById('mobile-menu-btn');
+const menu = document.getElementById('mobile-menu');
+const icon = document.getElementById('menu-icon');
+btn.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+    icon.className = menu.classList.contains('hidden') ? 'fas fa-bars text-xl' : 'fas fa-times text-xl';
+});
+
+// Auto-dismiss flash messages after 5 seconds
+setTimeout(() => {
+    document.querySelectorAll('[data-message]').forEach(el => {
+        el.style.transition = 'opacity 0.5s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 500);
+    });
+}, 5000);
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

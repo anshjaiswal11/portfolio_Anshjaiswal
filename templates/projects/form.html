@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Project - Portfolio{% endblock %}
+
+{% block content %}
+<section class="py-16">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <a href="{{ url('projects_list') }}" class="text-gray-400 hover:text-gray-600 text-sm flex items-center mb-4">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Projects
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">{{ action }} Project</h1>
+            <p class="text-gray-500 mt-2">Fill in the details below to {{ action.lower() }} a project.</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" id="project-form" class="space-y-6">
+            {{ csrf_input }}
+
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-6">
+                <h2 class="text-lg font-bold text-gray-800 border-b pb-3">Basic Information</h2>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Project Title *</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.title.errors|join(', ') }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Short Description</label>
+                    {{ form.short_description }}
+                    <p class="text-gray-400 text-xs mt-1">Brief summary shown in cards (max 300 characters)</p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Full Description *</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.description.errors|join(', ') }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-6">
+                <h2 class="text-lg font-bold text-gray-800 border-b pb-3">Technical Details</h2>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tech Stack *</label>
+                    {{ form.tech_stack }}
+                    <p class="text-gray-400 text-xs mt-1">Comma-separated: Python, Django, PostgreSQL, React</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">GitHub Link</label>
+                        {{ form.github_link }}
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Live Demo Link</label>
+                        {{ form.live_demo_link }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-6">
+                <h2 class="text-lg font-bold text-gray-800 border-b pb-3">Display Options</h2>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Project Image</label>
+                    {% if project and project.image %}
+                    <div class="mb-3">
+                        <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-32 h-24 object-cover rounded-xl border border-gray-200">
+                        <p class="text-gray-400 text-xs mt-1">Current image — upload new to replace</p>
+                    </div>
+                    {% endif %}
+                    {{ form.image }}
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Display Order</label>
+                        {{ form.order }}
+                        <p class="text-gray-400 text-xs mt-1">Lower = shown first</p>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="flex items-center space-x-3">
+                            {{ form.is_featured }}
+                            <label class="text-sm font-semibold text-gray-700">Featured Project</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save mr-2"></i>{{ action }} Project
+                </button>
+                <a href="{{ url('projects_list') }}" class="btn-secondary">
+                    <i class="fas fa-times mr-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Client-side validation
+document.getElementById('project-form').addEventListener('submit', function(e) {
+    const title = document.querySelector('[name="title"]').value.trim();
+    const desc = document.querySelector('[name="description"]').value.trim();
+    const tech = document.querySelector('[name="tech_stack"]').value.trim();
+    let errors = [];
+    if (!title) errors.push('Title is required');
+    if (title.length < 3) errors.push('Title must be at least 3 characters');
+    if (!desc) errors.push('Description is required');
+    if (!tech) errors.push('Tech stack is required');
+    if (errors.length > 0) {
+        e.preventDefault();
+        alert('Please fix: \n' + errors.join('\n'));
+    }
+});
+</script>
+{% endblock %}

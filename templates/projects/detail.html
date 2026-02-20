@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}{{ project.title }} - Portfolio{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="bg-white border-b border-gray-100 py-4 mt-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center text-sm text-gray-500 space-x-2">
+            <a href="{{ url('home') }}" class="hover:text-primary-600 transition-colors">Home</a>
+            <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            <a href="{{ url('projects_list') }}" class="hover:text-primary-600 transition-colors">Projects</a>
+            <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            <span class="text-gray-800 font-medium">{{ project.title }}</span>
+        </nav>
+    </div>
+</div>
+
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Project Image -->
+                {% if project.image %}
+                <div class="rounded-2xl overflow-hidden mb-8 shadow-lg">
+                    <img src="{{ project.image.url }}" alt="{{ project.title }}" class="w-full h-80 object-cover">
+                </div>
+                {% else %}
+                <div
+                    class="rounded-2xl h-64 bg-gradient-to-br from-primary-100 via-purple-50 to-pink-50 flex items-center justify-center mb-8 border border-gray-100">
+                    <div class="text-center">
+                        <i class="fas fa-code text-6xl text-primary-300 mb-3"></i>
+                        <p class="text-primary-400 font-medium">{{ project.title }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <div class="flex items-start justify-between mb-6">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ project.title }}</h1>
+                            <p class="text-gray-400 text-sm"><i class="fas fa-calendar-alt mr-1"></i>{{
+                                project.created_at.strftime('%B %d, %Y') }}</p>
+                        </div>
+                        {% if project.is_featured %}
+                        <span class="bg-accent-100 text-accent-700 font-bold px-3 py-1.5 rounded-xl text-sm">⭐
+                            Featured</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="prose prose-lg max-w-none text-gray-600 leading-relaxed mb-8">
+                        <p class="text-xl text-gray-500 mb-6">{{ project.short_description }}</p>
+                        <div class="whitespace-pre-line">{{ project.description }}</div>
+                    </div>
+
+                    <!-- Tech Stack -->
+                    <div class="mb-8">
+                        <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                            <i class="fas fa-layer-group text-primary-600 mr-2"></i>Tech Stack
+                        </h3>
+                        <div class="flex flex-wrap gap-2">
+                            {% for tech in project.get_tech_list() %}
+                            <span
+                                class="px-4 py-2 bg-gradient-to-r from-primary-50 to-purple-50 text-primary-700 rounded-xl text-sm font-semibold border border-primary-100">{{
+                                tech }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap gap-4 pt-6 border-t border-gray-100">
+                        {% if project.live_demo_link %}
+                        <a href="{{ project.live_demo_link }}" target="_blank" class="btn-primary">
+                            <i class="fas fa-external-link-alt mr-2"></i>Live Demo
+                        </a>
+                        {% endif %}
+                        {% if project.github_link %}
+                        <a href="{{ project.github_link }}" target="_blank" class="btn-secondary">
+                            <i class="fab fa-github mr-2"></i>View Code
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Admin Controls -->
+                {% if request.user.is_staff %}
+                <div class="bg-amber-50 rounded-2xl p-6 border border-amber-100">
+                    <h3 class="font-bold text-amber-800 mb-4 flex items-center">
+                        <i class="fas fa-cog mr-2"></i>Admin Controls
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="{{ url('project_edit', project.slug) }}"
+                            class="flex items-center px-4 py-2.5 bg-white text-gray-700 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors font-medium text-sm border border-gray-200">
+                            <i class="fas fa-edit mr-2 text-primary-500"></i>Edit Project
+                        </a>
+                        <a href="{{ url('project_delete', project.slug) }}"
+                            class="flex items-center px-4 py-2.5 bg-white text-red-600 rounded-xl hover:bg-red-50 transition-colors font-medium text-sm border border-red-100">
+                            <i class="fas fa-trash mr-2"></i>Delete Project
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Project Info Card -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-info-circle text-primary-600 mr-2"></i>Project Info
+                    </h3>
+                    <dl class="space-y-3">
+                        <div>
+                            <dt class="text-xs text-gray-400 uppercase font-medium">Created</dt>
+                            <dd class="text-gray-700 font-medium mt-0.5">{{ project.created_at.strftime('%B %Y') }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-xs text-gray-400 uppercase font-medium">Last Updated</dt>
+                            <dd class="text-gray-700 font-medium mt-0.5">{{ project.updated_at.strftime('%B %Y') }}</dd>
+                        </div>
+                        {% if project.github_link %}
+                        <div>
+                            <dt class="text-xs text-gray-400 uppercase font-medium">Repository</dt>
+                            <dd class="mt-0.5">
+                                <a href="{{ project.github_link }}" target="_blank"
+                                    class="text-primary-600 hover:text-primary-700 font-medium text-sm flex items-center">
+                                    <i class="fab fa-github mr-1"></i>GitHub Repo
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </dd>
+                        </div>
+                        {% endif %}
+                        {% if project.live_demo_link %}
+                        <div>
+                            <dt class="text-xs text-gray-400 uppercase font-medium">Live Demo</dt>
+                            <dd class="mt-0.5">
+                                <a href="{{ project.live_demo_link }}" target="_blank"
+                                    class="text-accent-600 hover:text-accent-700 font-medium text-sm flex items-center">
+                                    <i class="fas fa-globe mr-1"></i>View Live
+                                    <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                                </a>
+                            </dd>
+                        </div>
+                        {% endif %}
+                    </dl>
+                </div>
+
+                <!-- Share -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4">Share Project</h3>
+                    <button onclick="copyURL()"
+                        class="w-full flex items-center justify-center px-4 py-2.5 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-200">
+                        <i class="fas fa-link mr-2"></i>Copy Link
+                    </button>
+                </div>
+
+                <!-- Related Projects -->
+                {% if related_projects %}
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-900 mb-4">Other Projects</h3>
+                    <div class="space-y-4">
+                        {% for related in related_projects %}
+                        <a href="{{ url('project_detail', related.slug) }}"
+                            class="flex items-center space-x-3 hover:bg-gray-50 p-2 rounded-xl transition-colors group">
+                            <div
+                                class="w-12 h-12 bg-gradient-to-br from-primary-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-code text-primary-500 text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p
+                                    class="font-medium text-gray-800 text-sm group-hover:text-primary-600 transition-colors truncate">
+                                    {{ related.title }}</p>
+                                <p class="text-gray-400 text-xs mt-0.5">{{ related.created_at.strftime('%b %Y') }}</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyURL() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            const btn = event.target.closest('button');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-2 text-green-500"></i>Copied!';
+            setTimeout(() => btn.innerHTML = original, 2000);
+        });
+    }
+</script>
+{% endblock %}

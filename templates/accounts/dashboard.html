@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Portfolio{% endblock %}
+
+{% block content %}
+<section class="py-10 bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-500 mt-1">Welcome back, <span class="font-semibold text-primary-600">{{
+                        request.user.first_name or request.user.username }}</span>!</p>
+            </div>
+            <div class="flex gap-3">
+                <a href="{{ url('profile_edit') }}" class="btn-secondary text-sm py-2.5">
+                    <i class="fas fa-user-edit mr-2"></i>Edit Profile
+                </a>
+                {% if request.user.is_staff %}
+                <a href="{{ url('project_create') }}" class="btn-primary text-sm py-2.5">
+                    <i class="fas fa-plus mr-2"></i>Add Project
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Total Projects</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-1">{{ projects_count }}</p>
+                    </div>
+                    <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-code text-primary-600 text-xl"></i>
+                    </div>
+                </div>
+                <a href="{{ url('projects_list') }}"
+                    class="text-primary-600 text-sm font-medium mt-4 flex items-center hover:text-primary-700">
+                    View all <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                </a>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Contact Messages</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-1">{{ messages_count }}</p>
+                    </div>
+                    <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-envelope text-purple-600 text-xl"></i>
+                    </div>
+                </div>
+                {% if unread_count > 0 %}
+                <p class="text-purple-600 text-sm font-medium mt-4">
+                    <span class="bg-purple-100 px-2 py-0.5 rounded-full">{{ unread_count }} unread</span>
+                </p>
+                {% else %}
+                <p class="text-gray-400 text-sm mt-4">All messages read</p>
+                {% endif %}
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-500 font-medium">Account Type</p>
+                        <p class="text-2xl font-bold text-gray-900 mt-1">{{ 'Admin' if request.user.is_staff else 'User'
+                            }}</p>
+                    </div>
+                    <div class="w-14 h-14 bg-accent-100 rounded-2xl flex items-center justify-center">
+                        <i
+                            class="fas fa-{{ 'shield-alt' if request.user.is_staff else 'user' }} text-accent-600 text-xl"></i>
+                    </div>
+                </div>
+                {% if request.user.is_staff %}
+                <a href="/admin/"
+                    class="text-accent-600 text-sm font-medium mt-4 flex items-center hover:text-accent-700">
+                    Django Admin <i class="fas fa-external-link-alt ml-1 text-xs"></i>
+                </a>
+                {% else %}
+                <p class="text-gray-400 text-sm mt-4">View-only access</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-50 flex items-center justify-between">
+                <h2 class="text-lg font-bold text-gray-900">Projects Overview</h2>
+                {% if request.user.is_staff %}
+                <a href="{{ url('project_create') }}"
+                    class="text-primary-600 text-sm font-medium hover:text-primary-700 flex items-center">
+                    <i class="fas fa-plus mr-1"></i>Add New
+                </a>
+                {% endif %}
+            </div>
+            {% if projects %}
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th
+                                class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                                Project</th>
+                            <th
+                                class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3 hidden md:table-cell">
+                                Tech Stack</th>
+                            <th
+                                class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3 hidden sm:table-cell">
+                                Date</th>
+                            <th
+                                class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                                Status</th>
+                            {% if request.user.is_staff %}
+                            <th
+                                class="text-left text-xs font-semibold text-gray-500 uppercase tracking-wider px-6 py-3">
+                                Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        {% for project in projects %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-3">
+                                    <div
+                                        class="w-10 h-10 bg-gradient-to-br from-primary-100 to-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                        <i class="fas fa-code text-primary-500 text-sm"></i>
+                                    </div>
+                                    <div>
+                                        <a href="{{ url('project_detail', project.slug) }}"
+                                            class="font-semibold text-gray-900 hover:text-primary-600 text-sm">{{
+                                            project.title }}</a>
+                                        <p class="text-gray-400 text-xs">/projects/{{ project.slug }}/</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 hidden md:table-cell">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for tech in project.get_tech_list()[:2] %}
+                                    <span class="tech-badge text-xs">{{ tech }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-gray-500 text-sm hidden sm:table-cell">{{
+                                project.created_at.strftime('%b %d, %Y') }}</td>
+                            <td class="px-6 py-4">
+                                {% if project.is_featured %}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-1 bg-accent-100 text-accent-700 rounded-full text-xs font-semibold">⭐
+                                    Featured</span>
+                                {% else %}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">Published</span>
+                                {% endif %}
+                            </td>
+                            {% if request.user.is_staff %}
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <a href="{{ url('project_edit', project.slug) }}"
+                                        class="text-gray-400 hover:text-primary-600 transition-colors p-1.5 hover:bg-primary-50 rounded-lg"
+                                        title="Edit">
+                                        <i class="fas fa-edit text-sm"></i>
+                                    </a>
+                                    <a href="{{ url('project_delete', project.slug) }}"
+                                        class="text-gray-400 hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 rounded-lg"
+                                        title="Delete">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </a>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-16">
+                <i class="fas fa-folder-open text-4xl text-gray-300 mb-4"></i>
+                <p class="text-gray-400 mb-4">No projects yet</p>
+                {% if request.user.is_staff %}
+                <a href="{{ url('project_create') }}" class="btn-primary">
+                    <i class="fas fa-plus mr-2"></i>Add First Project
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Links -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-4">API Endpoints</h3>
+                <div class="space-y-2 font-mono text-sm">
+                    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5">
+                        <span class="text-green-600">GET</span>
+                        <span class="text-gray-600">/api/projects/</span>
+                        <a href="/api/projects/" target="_blank" class="text-primary-500 hover:text-primary-600"><i
+                                class="fas fa-external-link-alt text-xs"></i></a>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5">
+                        <span class="text-green-600">GET</span>
+                        <span class="text-gray-600">/api/profile/</span>
+                        <a href="/api/profile/" target="_blank" class="text-primary-500 hover:text-primary-600"><i
+                                class="fas fa-external-link-alt text-xs"></i></a>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5">
+                        <span class="text-blue-600">POST</span>
+                        <span class="text-gray-600">/api/contact/</span>
+                        <span class="text-gray-400 text-xs">—</span>
+                    </div>
+                    <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-2.5">
+                        <span class="text-blue-600">POST</span>
+                        <span class="text-gray-600">/api/auth/login/</span>
+                        <span class="text-gray-400 text-xs">—</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                <h3 class="font-bold text-gray-900 mb-4">Quick Navigation</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <a href="{{ url('home') }}"
+                        class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm font-medium text-gray-700">
+                        <i class="fas fa-home text-gray-400"></i><span>Home</span>
+                    </a>
+                    <a href="{{ url('about') }}"
+                        class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm font-medium text-gray-700">
+                        <i class="fas fa-user text-gray-400"></i><span>About</span>
+                    </a>
+                    <a href="{{ url('projects_list') }}"
+                        class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm font-medium text-gray-700">
+                        <i class="fas fa-code text-gray-400"></i><span>Projects</span>
+                    </a>
+                    <a href="/admin/"
+                        class="flex items-center space-x-2 px-4 py-3 bg-gray-50 rounded-xl hover:bg-primary-50 hover:text-primary-600 transition-colors text-sm font-medium text-gray-700">
+                        <i class="fas fa-cog text-gray-400"></i><span>Admin</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

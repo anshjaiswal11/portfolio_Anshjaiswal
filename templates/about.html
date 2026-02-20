@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}About - Portfolio{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-gradient-to-br from-gray-900 to-primary-900 py-24 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <span class="text-primary-300 font-semibold text-sm uppercase tracking-widest">Get to know me</span>
+        <h1 class="text-4xl md:text-5xl font-bold mt-2 mb-4">About Me</h1>
+        <p class="text-gray-300 text-lg max-w-2xl mx-auto">Passionate developer building real-world web applications with modern technologies.</p>
+    </div>
+</section>
+
+<section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Profile Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 sticky top-24">
+                    <div class="text-center mb-6">
+                        {% if profile and profile.profile_image %}
+                        <img src="{{ profile.profile_image.url }}" alt="{{ profile.name }}" class="w-28 h-28 rounded-full object-cover mx-auto mb-4 ring-4 ring-primary-100">
+                        {% else %}
+                        <div class="w-28 h-28 rounded-full bg-gradient-to-br from-primary-400 to-purple-500 flex items-center justify-center mx-auto mb-4 ring-4 ring-primary-100">
+                            <span class="text-white text-3xl font-bold">{{ (profile.name[0] if profile and profile.name else 'D') }}</span>
+                        </div>
+                        {% endif %}
+                        <h2 class="text-xl font-bold text-gray-900">{{ profile.name if profile and profile.name else 'Developer' }}</h2>
+                        <p class="text-primary-600 font-medium text-sm mt-1">{{ profile.title if profile and profile.title else 'Full Stack Developer' }}</p>
+                        {% if profile and profile.location %}
+                        <p class="text-gray-400 text-sm mt-1"><i class="fas fa-map-marker-alt mr-1"></i>{{ profile.location }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Social Links -->
+                    <div class="flex justify-center space-x-3 mb-6">
+                        {% if profile and profile.github_url %}
+                        <a href="{{ profile.github_url }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-800 hover:text-white text-gray-600 transition-all">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        {% endif %}
+                        {% if profile and profile.linkedin_url %}
+                        <a href="{{ profile.linkedin_url }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-blue-600 hover:text-white text-gray-600 transition-all">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        {% endif %}
+                        {% if profile and profile.twitter_url %}
+                        <a href="{{ profile.twitter_url }}" target="_blank" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-sky-500 hover:text-white text-gray-600 transition-all">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        {% endif %}
+                        <a href="{{ url('contact') }}" class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-primary-600 hover:text-white text-gray-600 transition-all">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                    </div>
+
+                    {% if profile and profile.resume %}
+                    <a href="{{ profile.resume.url }}" download class="btn-primary w-full justify-center">
+                        <i class="fas fa-download mr-2"></i>Download Resume
+                    </a>
+                    {% else %}
+                    <a href="{{ url('contact') }}" class="btn-primary w-full justify-center">
+                        <i class="fas fa-paper-plane mr-2"></i>Contact Me
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Bio -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <i class="fas fa-user-circle text-primary-600 mr-3"></i>About Me
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed">
+                        {{ profile.bio if profile and profile.bio else 'I am a passionate full-stack developer with expertise in Python, Django, and modern web technologies. I love building clean, scalable applications and solving complex problems.' }}
+                    </p>
+                </div>
+
+                <!-- Skills -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-code text-primary-600 mr-3"></i>Skills & Technologies
+                    </h3>
+                    {% if profile and profile.skills %}
+                    <div class="flex flex-wrap gap-3">
+                        {% for skill in profile.get_skills_list() %}
+                        <span class="px-4 py-2 bg-gradient-to-r from-primary-50 to-purple-50 text-primary-700 rounded-xl text-sm font-semibold border border-primary-100 hover:from-primary-100 hover:to-purple-100 transition-colors">
+                            {{ skill }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="flex flex-wrap gap-3">
+                        {% for skill in ['Python', 'Django', 'Django REST Framework', 'PostgreSQL', 'HTML/CSS', 'JavaScript', 'Tailwind CSS', 'Docker', 'Git', 'GitHub Actions', 'Linux', 'REST APIs'] %}
+                        <span class="px-4 py-2 bg-gradient-to-r from-primary-50 to-purple-50 text-primary-700 rounded-xl text-sm font-semibold border border-primary-100">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Experience -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-briefcase text-primary-600 mr-3"></i>Experience
+                    </h3>
+                    {% if profile and profile.experience %}
+                    <div class="text-gray-600 leading-relaxed whitespace-pre-line">{{ profile.experience }}</div>
+                    {% else %}
+                    <div class="space-y-6">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-laptop-code text-primary-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Full Stack Developer</h4>
+                                <p class="text-primary-600 text-sm font-medium">Self-Employed / Freelance</p>
+                                <p class="text-gray-400 text-sm">2020 - Present</p>
+                                <p class="text-gray-600 text-sm mt-2">Building web applications using Django, PostgreSQL, and modern frontend technologies.</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Education -->
+                <div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-graduation-cap text-primary-600 mr-3"></i>Education
+                    </h3>
+                    {% if profile and profile.education %}
+                    <div class="text-gray-600 leading-relaxed whitespace-pre-line">{{ profile.education }}</div>
+                    {% else %}
+                    <div class="flex gap-4">
+                        <div class="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-university text-accent-600"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-900">Computer Science / Software Engineering</h4>
+                            <p class="text-primary-600 text-sm font-medium">University</p>
+                            <p class="text-gray-400 text-sm">2018 - 2022</p>
+                            <p class="text-gray-600 text-sm mt-2">Bachelor's degree with focus on software engineering, databases, and algorithms.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
