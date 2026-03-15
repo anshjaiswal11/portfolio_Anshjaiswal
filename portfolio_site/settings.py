@@ -73,18 +73,23 @@ WSGI_APPLICATION = 'portfolio_site.wsgi.application'
 DATABASE_URL = os.environ.get('DATABASE_URL', '').strip()
 
 if DATABASE_URL and DATABASE_URL.startswith(('postgres', 'postgresql')):
-    DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
-    }
+    _db = dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    if 'OPTIONS' not in _db:
+        _db['OPTIONS'] = {}
+    _db['OPTIONS'].setdefault('sslmode', 'require')
+    DATABASES = {'default': _db}
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='portfolio_db'),
-            'USER': config('DB_USER', default='portfolio_user'),
-            'PASSWORD': config('DB_PASSWORD', default='portfolio_pass'),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default='5432'),
+            'NAME': config('SUPABASE_DB_NAME', default=config('DB_NAME', default='portfolio_db')),
+            'USER': config('SUPABASE_DB_USER', default=config('DB_USER', default='portfolio_user')),
+            'PASSWORD': config('SUPABASE_DB_PASSWORD', default=config('DB_PASSWORD', default='portfolio_pass')),
+            'HOST': config('SUPABASE_DB_HOST', default=config('DB_HOST', default='localhost')),
+            'PORT': config('SUPABASE_DB_PORT', default=config('DB_PORT', default='5432')),
+            'OPTIONS': {
+                'sslmode': config('DB_SSLMODE', default='require'),
+            },
         }
     }
 
