@@ -154,6 +154,7 @@ if not CORS_ALLOW_ALL_ORIGINS:
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://portfolioanshjaiswal-production.up.railway.app',
+    'https://portfolio-app-production-e8ac.up.railway.app/',
 ]
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
